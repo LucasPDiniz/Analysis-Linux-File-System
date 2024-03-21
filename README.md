@@ -28,5 +28,8 @@ Below we have these folders;
 <p align="center">
   <img width="400" height="200" src="./img/2.png">
   <br>
-  <font color="red">Compromised Host Folders</font>
 </p>
+<p align="center">
+<font color="red">Compromised Host Folders</font>
+</p>
+
