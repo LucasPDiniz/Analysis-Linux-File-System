@@ -28,8 +28,5 @@ Below we have these folders;
 <p align="center">
   <img width="400" height="200" src="./img/2.png">
   <br>
+  <span style="color:red">Backup of folders for analysis.</span>
 </p>
-<p align="center">
-<font color="red">Compromised Host Folders</font>
-</p>
-
