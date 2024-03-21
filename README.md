@@ -30,5 +30,3 @@ Below we have these folders;
   <br>
   <span style="color:red">Backup of folders for analysis.</span>
 </p>
-
-<span style="color:red">Backup of folders for analysis.</span>
