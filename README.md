@@ -1,12 +1,12 @@
-# Analysis - Linux File System :mag_right:
+# Analysis - Linux File System Compromised :fire:
 
 <p align="center">
-  <img width="900" height="400" src="./img/1.png">
+  <img width="800" height="320" src="./img/1.png">
 </p>
 
 ## Introduction :pencil2:
 
- #### My system has been compromised, how can I start an analysis:question:
+ #### My system has been compromised, How can I start an analysis :question:
 
 In this repository we will simulate a file analysis to identify an intrusion on our server. Let's see some tips on files that may have been exploited and some files with log analysis.
 
@@ -21,8 +21,6 @@ In this repository we will simulate a file analysis to identify an intrusion on 
 3. All analysis must be done in a VM, isolated from your personal host so as not to cause unplanned damage.
 
 4. The compromised environment was running a **Web Server**. Maybe it's a way to start.
-
-
 
 For this study, we simulated an infection and will analyze together how to uncover traces left by the invader.
 To start the study, we copied some folders with important binaries from the compromised system, and mounted them in ```/mnt/usb/*``` .
@@ -129,3 +127,6 @@ Before we investigate the reverse.elf file further, there are several other usef
   <span style="color:red">VirusTotal</span>
 </p>
 
+___
+
+Working...
