@@ -127,6 +127,94 @@ Before we investigate the reverse.elf file further, there are several other usef
   <span style="color:red">VirusTotal</span>
 </p>
 
-___
+
+## Users and Groups Linux
+
+* Continuing our investigation, a good tip for identifying persistence and lateral movements are the users and groups of users in the system. Let's dig into our system.
+
+### User Accounts
+
+* In a UNIX system, it is common to identify all users of the system through the `/etc/passwd` file. In addition to users, we were able to identify the attributes, ID (UID), group ID (GID), home directory location, and the login shell defined for the user. Let's look at this file on our system.
+
+<p align="center">
+  <img width="800" height="230" src="./img/11.png">
+</p>
+
+> [!NOTE]
+We can see an unusual user created with ID 0, called **b4ckd00r3d**.
+
+* Attackers can maintain access to a system by creating a backdoor user with root permissions. We can leverage the cut and grep commands to identify this type of user account backdoor quickly. 
+
+```
+cat /etc/passwd | cut -d: -f1,3 | grep ':0$'
+```
+<p align="center">
+  <img width="800" height="50" src="./img/12.png">
+</p>
+
+
+
+* The ID 0 is reserved exclusively for the superuser in the Linux operating system and is fundamentally different from all other user accounts. In our system, we can see that a user with superuser (root) privileges has been created.
+
+### Groups
+
+* In Linux systems, certain groups grant specific privileges that attackers may target to escalate their privileges. Some important Linux groups that might be of interest to an attacker include:
+
+  * **sudo or wheel**: Members of the sudo (or wheel) group have the authority to execute commands with elevated privileges using sudo.
+  * **adm**: The adm group typically has read access to system log files.
+  * **shadow**: The shadow group is related to managing user authentication and password information. With this membership, a user can read the /etc/shadow file, which contains the password hashes of all users on the system.
+  * **disk**: Members of the disk group have almost unrestricted read and limited write access inside the system.
+
+  * Just like the file `/etc/passwd` shows users, in the UNIX system there is a file to show groups in `/etc/group`.
+
+<p align="center">
+  <img width="800" height="200" src="./img/13.png">
+</p>
+
+* Below we have some basic commands for using group me in our system.
+
+```
+groups (user) - Show the groups that each user
+getent group (group name) - To list all members of a group
+getent group (group id) - Tist users by group id
+```
+
+## Login and Logs
+
+* In the UNIX system there are several ways to monitor and identify possible suspicious activities in the environment. In this step, we will analyze some access log files.
+
+### Last and Lastb
+
+* The last command is an excellent tool for examining user logins and sessions. It is used to display the history of the last logged-in users. It works by reading the /var/log/wtmp file, which is a file that contains every login and logout activity on the system. Similarly, lastb specifically tracks failed login attempts by reading the contents of /var/log/btmp, which can help identify login and password attacks.
+
+<p align="center">
+  <img width="800" height="200" src="./img/14.png">
+</p>
+
+* Similar to lastb, we can view unsuccessful logins in the file `/var/log/auth.log` or `/var/log/secure` on some distributions like CentOS or Red Hat.
+
+<p align="center">
+  <img width="800" height="200" src="./img/15.png">
+</p>
+
+### Who
+
+* The who command can be used to display the users that are currently logged into the system. The output of this command can provide details such as the name of the user logged in, the terminal device used, the time that the session was established, idle activity, the process ID of the shell, and additional comments that may include details such as the initial command used to start the session.
+
+<p align="center">
+  <img width="800" height="40" src="./img/16.png">
+</p>
+
+### Sudo
+
+* Like the other user and group files, sudo is located in `/etc/sudoers`, where it is defined who can execute commands as another user. Normally, users registered in this file allow executing commands as root.
+
+<p align="center">
+  <img width="800" height="200" src="./img/17.png">
+</p>
+
+* The sudoers file requires root (or sudo) access to view.
+
+## Sensitive directories and Files
 
 Working...
