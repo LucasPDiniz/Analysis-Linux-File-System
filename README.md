@@ -114,7 +114,7 @@ Before we investigate the reverse.elf file further, there are several other usef
 * Let's find out the **MD5** and **SHA1** checksum of our suspect binary.
 
 <p align="center">
-  <img width="800" height="130" src="./img/9.png">
+  <img width="800" height="100" src="./img/9.png">
 </p>
 
 * With the checksum generated, we can use it to search for more information on malware analysis sites. A well-known one called [VirusTotal](https://www.virustotal.com.com/hex-to-text.php.). 
@@ -215,6 +215,39 @@ getent group (group id) - Tist users by group id
 
 * The sudoers file requires root (or sudo) access to view.
 
-## Sensitive directories and Files
+## Sensitive Directories and Files
 
-Working...
+To continue our investigation of the system's users and groups, we must also examine each user's home directory, files, history, and custom settings.
+
+### Home Directories
+
+* The `/home` repository is normally where each user's folder on the system is located. In it we can find personalized settings for each one. This is not always the directory, looking in the `/etc/passwd` file, we can see each location of each user's home folder. On our host we have the folders below.
+
+<p align="center">
+  <img width="800" height="50" src="./img/18.png">
+</p>
+
+### Hidden Files
+
+* A way to hide files on the system, hiding folders/files. Additionally, sensitive system settings are typically stored. To display hidden files, we can list them with `ls -a`. We can see the hidden files/folders when they start with `.`.
+
+  * **.bash_history**: This file contains a user's command history and can be used to show previous commands executed by the user.
+  * **.bashrc** and **.profile**: These are configuration files used to customise a user's Bash shell sessions and login environment, respectively.
+
+<p align="center">
+  <img width="800" height="50" src="./img/19.png">
+</p>
+
+### SSH Key
+
+* The hidden `.ssh` folder is responsible for storing the public/private key for the SSH connection to the system. Stealing the private key can allow the attacker to reconnect to the host without any difficulty.
+* If a malicious user gains unauthorised access to a system and wants to persistently access another user's account by adding their public key to the `authorized_keys` file.
+
+<p align="center">
+  <img width="800" height="200" src="./img/20.png">
+</p>
+
+> [!NOTE]
+In this case, we can see something suspicious, where within the ssh config of the user Jane, there is another public key with an unknown user, **backdoor**.
+
+## Binary Bypass Permissions 
