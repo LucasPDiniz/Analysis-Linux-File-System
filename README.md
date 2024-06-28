@@ -251,3 +251,5 @@ To continue our investigation of the system's users and groups, we must also exa
 In this case, we can see something suspicious, where within the ssh config of the user Jane, there is another public key with an unknown user, **backdoor**.
 
 ## Binary Bypass Permissions 
+
+Working...
