@@ -24,7 +24,10 @@ In this repository we will simulate a file analysis to identify an intrusion on 
 
 For this study, we simulated an infection and will analyze together how to uncover traces left by the invader.
 
-=========================
+<p align="center">
+  <img width="800" height="300" src="./img/29.png">
+</p>
+
 
 
 ## Analyzing the Web Server :globe_with_meridians:
@@ -244,7 +247,7 @@ To continue our investigation of the system's users and groups, we must also exa
 > [!NOTE]
 In this case, we can see something suspicious, where within the ssh config of the user Jane, there is another public key with an unknown user, **backdoor**.
 
-## Binary Analysis and Bypass Permissions 
+## Binary Analysis and Bypass Permissions :warning:
 
 * Another area to look at within our compromised host's file system is identifying binaries and executables that the attacker may have created, altered, or exploited through permission misconfigurations.*
 
@@ -309,7 +312,7 @@ find / -perm -u=s -type f 2>/dev/null
 
 * Much of the output here is expected as these binaries require the SUID bit and are not vulnerable. However, two of these results stand out. Firstly, Python should never be given SUID permission, as it is trivial to escalate privileges to the owner. Additionally, any SUID binaries in the `/tmp` or `/var/tmp` directory stand out as these directories are typically writable by all users, and unauthorised creation of SUID binaries in these directories poses a notable risk.
 
-### Analyzing
+### Analyzing :shipit:
 
 * We have a suspicion that the attacker could be doing something with Python. Remember the **.bash_history** file? It keeps history of command execution. Let's search each user's `/home/` and check if there was a Python command.
 
