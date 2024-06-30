@@ -25,7 +25,7 @@ In this repository we will simulate a file analysis to identify an intrusion on 
 For this study, we simulated an infection and will analyze together how to uncover traces left by the invader.
 
 <p align="center">
-  <img width="800" height="300" src="./img/29.png">
+  <img width="500" height="200" src="./img/29.png">
 </p>
 
 
@@ -270,13 +270,13 @@ find / -type f -executable 2>/dev/null
 * The string function is useful for identifying possible functions, texts, variables or any other information that can be returned by human-readable text from a binary. In this example I will use any banario used by the previous command, `find /`.
 
 <p align="center">
-  <img width="800" height="300" src="./img/22.png">
+  <img width="500" height="150" src="./img/22.png">
 </p>
  
  * In this analysis, we were able to find strings, probably of options for this binary.
 
 <p align="center">
-  <img width="800" height="300" src="./img/23.png">
+  <img width="500" height="150" src="./img/23.png">
 </p>
 
 
@@ -307,7 +307,7 @@ find / -perm -u=s -type f 2>/dev/null
 ```
 
 <p align="center">
-  <img width="800" height="400" src="./img/25.png">
+  <img width="500" height="300" src="./img/25.png">
 </p>
 
 * Much of the output here is expected as these binaries require the SUID bit and are not vulnerable. However, two of these results stand out. Firstly, Python should never be given SUID permission, as it is trivial to escalate privileges to the owner. Additionally, any SUID binaries in the `/tmp` or `/var/tmp` directory stand out as these directories are typically writable by all users, and unauthorised creation of SUID binaries in these directories poses a notable risk.
