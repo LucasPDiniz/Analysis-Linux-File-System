@@ -23,15 +23,9 @@ In this repository we will simulate a file analysis to identify an intrusion on 
 4. The compromised environment was running a **Web Server**. Maybe it's a way to start.
 
 For this study, we simulated an infection and will analyze together how to uncover traces left by the invader.
-To start the study, we copied some folders with important binaries from the compromised system, and mounted them in ```/mnt/usb/*``` .
 
-Below we have these folders;
+=========================
 
-<p align="center">
-  <img width="400" height="200" src="./img/2.png">
-  <br>
-  <span style="color:red">Backup of folders for analysis.</span>
-</p>
 
 ## Analyzing the Web Server :globe_with_meridians:
 
@@ -87,7 +81,7 @@ Before we investigate the reverse.elf file further, there are several other usef
 | `find / -perm -o+w 2>/dev/null`      |Retrieve a list of all world-writable files and directories.  |
 | `find / -type f -cmin -5 2>/dev/null`|Retrieve a list of files created or changed within the last five minutes. |
 
-## Binary Analysis :mag_right:
+## Property of a Binary :mag_right:
 
 ### Metadata
 
@@ -250,6 +244,127 @@ To continue our investigation of the system's users and groups, we must also exa
 > [!NOTE]
 In this case, we can see something suspicious, where within the ssh config of the user Jane, there is another public key with an unknown user, **backdoor**.
 
-## Binary Bypass Permissions 
+## Binary Analysis and Bypass Permissions 
 
-Working...
+* Another area to look at within our compromised host's file system is identifying binaries and executables that the attacker may have created, altered, or exploited through permission misconfigurations.*
+
+### Find
+
+* With the command below, we can search for all operating system binaries, starting at the root `/` and searching recursively in all folders.
+
+```
+find / -type f -executable 2>/dev/null
+```
+
+* This command will show thousands of binaries, and you may need to use some more filters. 
+
+<p align="center">
+  <img width="800" height="200" src="./img/21.png">
+</p>
+
+### Strings
+
+* The string function is useful for identifying possible functions, texts, variables or any other information that can be returned by human-readable text from a binary. In this example I will use any banario used by the previous command, `find /`.
+
+<p align="center">
+  <img width="800" height="300" src="./img/22.png">
+</p>
+ 
+ * In this analysis, we were able to find strings, probably of options for this binary.
+
+<p align="center">
+  <img width="800" height="300" src="./img/23.png">
+</p>
+
+
+### Debsums
+
+*  Debsums is a command-line utility for Debian-based Linux systems that verifies the integrity of installed package files. debsums automatically compares the MD5 checksums of files installed from Debian packages against the known checksums stored in the package's metadata. If any files have been modified or corrupted, debsums will report them, citing potential issues with the package's integrity.
+
+* The command that we can use to check the integrity of system files is below. This command needs to be run as sudo/root on the system
+
+```
+sudo debsums -e -s
+```
+<p align="center">
+  <img width="800" height="100" src="./img/24.png">
+</p>
+
+> [!NOTE]
+In our system, a change in **/etc/sudoers** was identified. As we saw previously, this file is responsible for giving the privileges of running as root to other users.
+
+### Binary Permissions
+
+* SetUID (SUID) and SetGID (SGID) are special permission bits in Unix operating systems. These permission bits change the behaviour of executable files, allowing them to run with the privileges of the file owner or group rather than the privileges of the user who executes the file. If a binary or executable on the system is misconfigured with an SUID or SGID permission set, an attacker may abuse the binary to break out of a restricted (unprivileged) shell through legitimate but unintended use of that binary.
+
+* To search for these binaries with special permissions, we can use the command below;
+
+```
+find / -perm -u=s -type f 2>/dev/null
+```
+
+<p align="center">
+  <img width="800" height="400" src="./img/25.png">
+</p>
+
+* Much of the output here is expected as these binaries require the SUID bit and are not vulnerable. However, two of these results stand out. Firstly, Python should never be given SUID permission, as it is trivial to escalate privileges to the owner. Additionally, any SUID binaries in the `/tmp` or `/var/tmp` directory stand out as these directories are typically writable by all users, and unauthorised creation of SUID binaries in these directories poses a notable risk.
+
+### Analyzing
+
+* We have a suspicion that the attacker could be doing something with Python. Remember the **.bash_history** file? It keeps history of command execution. Let's search each user's `/home/` and check if there was a Python command.
+
+* Analyzing Jane's home folder.
+<p align="center">
+  <img width="800" height="300" src="./img/26.png">
+</p>
+
+* We can see some suspicious commands, let's analyze.
+* As we already know, this command searches for SUID with special access.
+```
+find / -perm -u=s -type f 2>/dev/null
+```
+
+* It was used with python binary, which we found previously. The attacker was able to create a copy of the `/bin/bash` and place it into the `/var/tmp` folder. Additionally, the attacker changed the owner of this file to root and added the SUID permission to it (chmod +s).
+
+```
+/usr/bin/python3.8 -c 'import os; os.execl("/bin/sh", "sh", "-p", "-c", "cp /bin/bash /var/tmp
+/bash && chown root:root /var/tmp/bash && chmod +s /var/tmp/bash")'
+```
+* After making an SUID copy of /bin/bash, the attacker elevated to root by running `/var/tmp/bash -p`.
+
+## Final Considerations
+
+* In this repository we carry out a basic analysis to identify important points that may have been used by an attacker to compromise our environment. We also saw some folders that can be used to persist the attack. There are already created tools that can automate the analysis process, such as **Chkrootkit** or **RKHunter**.
+
+**Chkrootkit**
+
+* Chkrootkit is a popular Unix-based utility used to examine the filesystem for rootkits. It operates as a simple shell script, leveraging common Linux binaries like grep and strings to scan the core system programs to identify signatures. It can use the signatures from files, directories, and processes to compare the data and identify common patterns of known rootkits.
+
+* Using Chkrootkit on our system, findme.sh was identified as suspicious.
+
+<p align="center">
+  <img width="800" height="300" src="./img/27.png">
+</p>
+
+* You can test in: [chkrootkit](https://www.chkrootkit.org/)
+
+
+**RKHunter**
+
+* RKHunter is another helpful tool designed to detect and remove rootkits on Unix-like operating systems. It offers a more comprehensive and feature-rich rootkit detection check compared to chkrootkit. RKHunter can compare SHA-1 hashes of core system files with known good ones in its database to search for common rootkit locations, wrong permissions, hidden files, and suspicious strings in kernel modules. It is an excellent choice for a more comprehensive assessment of the affected system.
+
+* The **RKhunter** will generate a list of binaries that can be categorized as suspicious. Some that we can show are users with UID 0 and changes to passwd and groups
+
+<p align="center">
+  <img width="800" height="200" src="./img/28.png">
+</p>
+
+* You can test in: [rkhunter](https://rkhunter.sourceforge.net/)
+ ---
+<p align="center">
+  <img width="500" height="260" src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExdXJsdGx1cHVhMDhrY2Y2N3ZycXd5aTNqcTNvNHc4YWxjenZmMXcxbCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/doCy6bjRnZgTw6Oh2O/giphy.webp">
+</p>
+
+<p align="center">
+I hope this analysis is useful in some way. See you next time.
+</p>
